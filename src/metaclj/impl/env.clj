@@ -46,7 +46,7 @@
 
 (defn -resolve [env sym]
   (or (when-let [[_ value] (find (:locals env) sym)]
-        value)
+        {:origin :locals :value value})
       (lookup-var (:namespace env) sym)
       (when-let [ns (namespace sym)]
         (let [{:keys [value]} (lookup-var (:namespace env) (symbol ns))

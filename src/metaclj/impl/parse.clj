@@ -5,7 +5,10 @@
 ; ie raise error for (var inc inc), (quote x x), odd number bindings, etc
 
 (defrecord Fn []) ;XXX delete me
-(defrecord Expression [head form ns env])
+(defrecord Expression [head form env])
+
+(defn expr? [x]
+  (instance? Expression x))
 
 (defprotocol Form
   (-parse [expr env]))
