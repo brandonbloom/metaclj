@@ -6,6 +6,7 @@
   `(~f ~@(map #(list `syntax %) args)))
 
 (defn syntax-eval [x]
+  ;(fipp.edn/pprint (list 'run! 'eval (list 'quote (transform x))))
   (run! eval (transform x)))
 
 (defmacro syntax [& forms]
@@ -15,10 +16,15 @@
                (->Env ~*ns* ~locals))))
 
 (defmacro defmeta [name & fn-tail]
-  (let [f (eval (list* 'fn name fn-tail))]
-    `(defmacro ~name [~'& args#]
+  (let [f (eval (list* 'fn fn-tail))]
+    `(defmacro ~(vary-meta name assoc :meta-macro f) [~'& args#]
        `(let [~'~'x (syntax-call ~~f ~@args#)]
           (syntax-eval ~'~'x)))))
+
+(defmacro defbn [name & fn-tail]
+  (let [methods (if (vector? (first fn-tail)) (list fn-tail) fn-tail)]
+    `(defmeta ~name ~@(for [[args & body] methods]
+                        (list args (list* `syntax body))))))
 
 (comment
 
@@ -59,13 +65,22 @@
         y [1 2 3]]
     (syntax x y))
 
-  ;(defmeta my-and
-  ;  ([] true)
-  ;  ([x] x)
-  ;  ([x & next]
-  ;   (syntax (let [y x]
-  ;             (if y (my-and (my-and next)) y)))))
+  (defbn my-if [test then else]
+    (if test then else))
 
-  ;(my-and 1 2 3)
+  (my-if true 1 2)
+  (my-if false 1 2)
+
+  (defbn my-and
+    ([] true)
+    ([x] x)
+    ([x next] ;XXX variadic
+     (let [y x]
+       (if y (my-and (my-and next)) y))))
+
+  (my-and)
+  (my-and 1)
+  (my-and 1 2)
+  (my-and 1 2 3)
 
 )

@@ -117,7 +117,8 @@
   {:head :let :form form :env env
    :bindings (mapv (fn [[name init]]
                      (when (namespace name)
-                       (throw (Exception. (str "Can't let qualified name: " name))))
+                       (throw (Exception.
+                                (str "Can't let qualified name: " name))))
                      {:name name :init init})
                    (partition 2 bindings))
    :expr (implicit-do body)})

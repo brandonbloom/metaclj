@@ -56,8 +56,7 @@
              :value (try
                       (.get (.getField value n) value)
                       (catch NoSuchFieldException _
-                        (staticfn value n)))})))
-      (throw (ex-info "undefined" {:env env :sym sym}))))
+                        (staticfn value n)))})))))
 
 (defn -declare [env sym]
   (intern *ns* sym))
