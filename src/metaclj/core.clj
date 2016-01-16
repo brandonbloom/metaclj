@@ -57,6 +57,10 @@
 
   (dotwice (prn 1))
 
+  (fipp.edn/pprint
+  (let [x 1] (syntax x))
+  )
+
   (let [x 1
         y [1 2 3]]
     (syntax 0))
