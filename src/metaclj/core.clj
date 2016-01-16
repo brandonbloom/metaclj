@@ -73,7 +73,9 @@
     (if test then else))
 
   (my-if true 1 2)
+  (my-if true (prn 1) (prn 2))
   (my-if false 1 2)
+  (my-if false (prn 1) (prn 2))
 
   (defbn my-and
     ([] true)

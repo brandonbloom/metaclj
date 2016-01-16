@@ -28,6 +28,9 @@ a syntax-quoter, the convenience macro `defbn` provides a way to create
   (if test then else))
 ```
 
+Both versions of `my-if` have correct "lazy" behavior: they will only evaluate
+one arm of the conditional.
+
 
 ## Status
 
