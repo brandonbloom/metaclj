@@ -4,7 +4,7 @@
 ## Overview
 
 Meta-Clojure is a proof of concept implementation of staged compilation for
-Clojure. It includes a form of syntax quoting that is aware of both
+Clojure. It includes a form of syntax quoting that is aware of both local
 environments and special-forms. Among other things, this makes many macros
 easier to write.
 
