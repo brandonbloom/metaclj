@@ -1,5 +1,6 @@
 # Meta-Clojure
 
+
 ## Overview
 
 Meta-Clojure is a proof of concept implementation of staged compilation for
@@ -27,8 +28,8 @@ a syntax-quoter, the convenience macro `defbn` provides a way to create
   (if test then else))
 ```
 
-## Status
 
+## Status
 
 - The comments at the bottom of [core.clj](./src/metaclj/core.clj) are my
   testbed.
@@ -38,12 +39,17 @@ a syntax-quoter, the convenience macro `defbn` provides a way to create
 - Many of the cooler things you can do with this are neither possible nor
   obvious from this prototype.
 - Lots of the code left to be cannibalized from [EClj][4].
+- No progress yet on [Exotypes][4]
+
 
 ## References
 
 - [Multi-stage Programming][1]
 - [Terralang][2]
 - [MetaOCaml][3]
+- [EClj][4]
+- [Exotypes][5]
+
 
 ## License
 
@@ -52,7 +58,9 @@ Copyright © 2016 Brandon Bloom
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
 
+
 [1]: https://www.cs.rice.edu/~taha/MSP/
 [2]: http://terralang.org/
 [3]: http://okmij.org/ftp/ML/MetaOCaml.html
 [4]: https://github.com/brandonbloom/eclj
+[5]: http://terralang.org/pldi083-devito.pdf
