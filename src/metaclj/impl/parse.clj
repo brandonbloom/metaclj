@@ -5,27 +5,25 @@
 ; ie raise error for (var inc inc), (quote x x), odd number bindings, etc
 
 (defrecord Fn []) ;XXX delete me
-(defrecord Expression [head form env])
-
-(defn expr? [x]
-  (instance? Expression x))
 
 (defprotocol Form
   (-parse [expr env]))
 
-(defn parse [form env]
-  (map->Expression (-parse form env)))
+(defn parse [x env]
+  (-parse x env))
 
-(defn parse-meta [{:keys [form env] :as syntax}]
-  (if-let [metadata (meta form)]
-    {:head :meta :expr (map->Expression syntax) :meta metadata :env env}
-    syntax))
+(defn parse-meta [form env]
+  (when-let [metadata (meta form)]
+    {:head :meta :form form  :env env
+     :expr (with-meta form nil) :meta metadata}))
 
 (defn parse-constant [x env]
-  {:head :constant :form x :env env :value x})
+  (or (parse-meta x env)
+      {:head :constant :form x :env env :value x}))
 
 (defn parse-collection [coll env]
-  (parse-meta {:head :collection :form coll :env env :coll coll}))
+  (or (parse-meta coll env)
+      {:head :collection :form coll :env env :coll coll}))
 
 (doseq [t [nil java.lang.Object]]
   (extend t Form {:-parse parse-constant}))
@@ -37,8 +35,11 @@
 
 (extend-protocol Form
 
-  Expression
-  (-parse [syntax env] syntax)
+  clojure.lang.Var
+  (-parse [v env]
+    (let [{:keys [name ns]} (meta v)
+          sym (symbol (str (ns-name ns)) (clojure.core/name name))]
+      (parse-seq (list 'var sym) env)))
 
   clojure.lang.Symbol
   (-parse [sym env]
@@ -47,7 +48,7 @@
   clojure.lang.ISeq
   (-parse [xs env]
     (cond
-      (empty? xs) (parse-meta (parse-constant xs env))
+      (empty? xs) (parse-constant xs env)
       (symbol? (first xs)) (parse-seq xs env)
       :else (parse-invoke xs env)))
 
@@ -147,8 +148,9 @@
 
 (defmethod parse-seq 'fn*
   [form env]
-  (parse-meta {:head :fn :form form :env env
-               :value (parse-fn form env)}))
+  (or (parse-meta form env)
+      {:head :fn :form form :env env
+       :value (parse-fn form env)}))
 
 (defmethod parse-seq 'letfn*
   [[_ bindings & body :as form] env]

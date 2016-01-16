@@ -1,18 +1,18 @@
 (ns metaclj.core
   (:require [metaclj.impl.env :refer [->Env]]
-            [metaclj.impl.parse :refer [parse expr?]]
-            [metaclj.impl.syntax :refer [transform]]))
+            [metaclj.impl.syntax :refer [->Syntax transform]]))
 
 (defmacro syntax-call [f & args]
   `(~f ~@(map #(list `syntax %) args)))
 
 (defn syntax-eval [x]
-  (eval (transform x)))
+  (run! eval (transform x)))
 
-(defmacro syntax [expr]
-  (let [free (keys &env) ;TODO compute minimal set from
-        locals (into {} (for [sym free] [(list 'quote sym) sym]))]
-    `(parse '~expr (->Env ~*ns* ~locals))))
+(defmacro syntax [& forms]
+  (let [locals (into {} (for [sym (keys &env)]
+                          [(list 'quote sym) sym]))]
+    `(->Syntax '~(vec forms)
+               (->Env ~*ns* ~locals))))
 
 (defmacro defmeta [name & fn-tail]
   (let [f (eval (list* 'fn name fn-tail))]
@@ -34,6 +34,10 @@
   ))
 
   (fipp.clojure/pprint (macroexpand-1 '
+    (blahblah 1 2 3 4)
+  ))
+
+  (fipp.clojure/pprint (macroexpand-1 '
   (defmeta dotwice [expr]
     (syntax (do expr expr)))
   ))
@@ -42,16 +46,26 @@
     (dotwice (prn 1))
   ))
 
+  (defmeta dotwice [expr]
+    (syntax (do expr expr)))
+
   (dotwice (prn 1))
 
   (let [x 1
         y [1 2 3]]
-    (syntax 1))
+    (syntax 0))
 
   (let [x 1
         y [1 2 3]]
-    (syntax x))
+    (syntax x y))
 
-  (parse 1 :an-env)
+  ;(defmeta my-and
+  ;  ([] true)
+  ;  ([x] x)
+  ;  ([x & next]
+  ;   (syntax (let [y x]
+  ;             (if y (my-and (my-and next)) y)))))
+
+  ;(my-and 1 2 3)
 
 )
