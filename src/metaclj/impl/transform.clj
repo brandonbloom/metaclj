@@ -74,10 +74,10 @@
 (defmethod transform :let
   [{:keys [bindings expr env]}]
   (let [[env bindings] (reduce (fn [[env bindings] {:keys [name init]}]
-                                 (let [sym (gensym (str name "$"))]
+                                 (let [sym (gensym (str name "$"))
+                                       inits (transform-in env init)]
                                    [(assoc env name sym)
-                                    (into (conj bindings sym)
-                                          (transform-in env init))]))
+                                    (conj bindings sym (list* 'do inits))]))
                                [env []]
                                bindings)]
     [(list* 'let* bindings (transform-in env expr))]))
