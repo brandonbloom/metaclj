@@ -1,6 +1,6 @@
-(ns metaclj.impl.syntax
+(ns metaclj.impl.syntax ;XXX rename me to transform or compile or something.
   (:require [metaclj.impl.env :as env]
-            [metaclj.impl.parse :refer [parse]]))
+            [metaclj.impl.parse :refer [parse head syntax?]]))
 
 (defn meta-macro? [{:keys [origin value]}]
   (and (= origin :namespace) (-> value meta :meta-macro)))
@@ -8,22 +8,10 @@
 (defn macro? [{:keys [origin value]}]
   (and (= origin :namespace) (-> value meta :macro)))
 
-(defrecord Syntax [forms env])
-
-(defn syntax? [x]
-  (instance? Syntax x))
-
-(defn head [x]
-  (if (syntax? x)
-    :syntax
-    (:head x)))
-
 (defmulti transform #'head)
 
 (defn transform-in [env x]
-  (if (syntax? x)
-    (transform x)
-    (transform (parse x env))))
+  (transform (parse x env)))
 
 (defmethod transform :syntax [{:keys [forms env]}]
   (mapcat #(transform-in env %) forms))
@@ -56,13 +44,22 @@
 (defmethod transform :collection [{:keys [coll env]}]
   [(transform-items coll env)])
 
+(defn splice-syntax [form env]
+  (list* (first form)
+         (mapcat (fn [x]
+                   (let [y (if (symbol? x) (:value (env/-resolve env x)) x)]
+                     (if (syntax? y)
+                       (mapcat #(transform-in (:env y) %) (:forms y))
+                       [x])))
+                 (next form))))
+
 (defmethod transform :invoke [{:keys [env f args form]}]
   (if (symbol? f)
     (let [{:keys [value] :as resolved} (env/-resolve env f)]
       (cond
         (meta-macro? resolved)
-        ,,(let [m (-> value meta :meta-macro)
-                subst (apply m (next form))]
+        ,,(let [mac (-> value meta :meta-macro)
+                subst (mac (splice-syntax form env) env)]
             (mapcat #(transform-in env %) (transform-in env subst)))
         (macro? resolved)
         ,,(let [subst (apply value (list* form env (next form)))]

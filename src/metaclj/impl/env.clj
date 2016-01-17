@@ -58,6 +58,8 @@
                       (catch NoSuchFieldException _
                         (staticfn value n)))})))))
 
+;XXX should the uses of *ns* below be (:namespace env) ?
+
 (defn -declare [env sym]
   (intern *ns* sym))
 

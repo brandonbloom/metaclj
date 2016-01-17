@@ -9,6 +9,19 @@
 (defprotocol Form
   (-parse [expr env]))
 
+(defrecord Syntax [forms env]
+  Form
+  (-parse [x env]
+    x))
+
+(defn syntax? [x]
+  (instance? Syntax x))
+
+(defn head [x]
+  (if (syntax? x)
+    :syntax
+    (:head x)))
+
 (defn parse [x env]
   (-parse x env))
 
