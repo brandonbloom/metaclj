@@ -13,7 +13,7 @@
   (let [locals (into {} (for [sym (keys &env)]
                           [(list 'quote sym) sym]))]
     `(->Syntax '~(vec forms)
-               (->Env ~*ns* ~locals))))
+               (merge (->Env ~*ns*) ~locals))))
 
 (defmacro defmeta [name & fn-tail]
   (let [f (eval (list* 'fn fn-tail))]

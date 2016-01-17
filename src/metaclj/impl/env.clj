@@ -2,7 +2,7 @@
   (:import [clojure.lang Reflector]))
 
 
-(defrecord Env [namespace locals])
+(defrecord Env [namespace])
 
 (defn static-invoke [class member & args]
   (if (zero? (count args))
@@ -45,7 +45,7 @@
   (apply f args))
 
 (defn -resolve [env sym]
-  (or (when-let [[_ value] (find (:locals env) sym)]
+  (or (when-let [[_ value] (find env sym)]
         {:origin :locals :value value})
       (lookup-var (:namespace env) sym)
       (when-let [ns (namespace sym)]
@@ -99,7 +99,7 @@
       ~@((for [[name args & body] methods
                :let [expr `'(do ~@body)
                      denv `(-> ~env ~@(for [arg args]
-                                        `(assoc-in [:locals '~arg] ~arg)))]]
+                                        `(assoc '~arg ~arg)))]]
             (list name args `(eclj.core/eval ~expr ~denv)))))))
 
 (defn -deftype [env tagname classname fields implements methods]
@@ -115,5 +115,5 @@
                                 ~@body))
                      denv `(-> ~env
                              ~@(for [param params]
-                                 `(assoc-in [:locals '~param] ~param)))]]
+                                 `(assoc '~param ~param)))]]
              (list name (vec params) `(eclj.core/eval ~expr ~denv))))))

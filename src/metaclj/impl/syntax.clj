@@ -65,7 +65,7 @@
                 subst (apply m (next form))]
             (mapcat #(transform-in env %) (transform-in env subst)))
         (macro? resolved)
-        ,,(let [subst (apply value (list* form (:locals env) (next form)))]
+        ,,(let [subst (apply value (list* form env (next form)))]
             (mapcat #(transform-in env %) (transform-in env subst)))
         ;XXX (expansion? value) (transform (assoc ast :f (:expr value)))
         :else [(list* value (mapcat #(transform-in env %) args))]))
@@ -77,9 +77,10 @@
 (defmethod transform :let
   [{:keys [bindings expr env]}]
   (let [[env bindings] (reduce (fn [[env bindings] {:keys [name init]}]
-                                 [(assoc-in env [:locals name] name)
-                                  (into (conj bindings name)
-                                        (transform-in env init))])
+                                 (let [sym (gensym (str name "$"))]
+                                   [(assoc env name sym)
+                                    (into (conj bindings sym)
+                                          (transform-in env init))]))
                                [env []]
                                bindings)]
     [(list* 'let* bindings (transform-in env expr))]))
