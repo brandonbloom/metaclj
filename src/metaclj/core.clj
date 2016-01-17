@@ -2,10 +2,10 @@
   (:refer-clojure :exclude [eval])
   (:require [metaclj.impl.env :refer [->Env]]
             [metaclj.impl.parse :refer [parse ->Syntax syntax?]]
-            [metaclj.impl.syntax :refer [transform-in]]))
+            [metaclj.impl.transform :refer [transform-in]]))
 
 (defn eval [x]
-  (fipp.clojure/pprint (transform-in (->Env *ns*) x))
+  ;(fipp.clojure/pprint (transform-in (->Env *ns*) x))
   (run! clojure.core/eval (transform-in (->Env *ns*) x)))
 
 (defmacro local-env []
@@ -112,5 +112,8 @@
   (my-and 1)
   (my-and 1 2)
   (my-and 1 2 3)
+  (my-and 1 2 3 4)
+  (my-and 1 false 3 4)
+  (my-and 1 2 nil 4)
 
 )

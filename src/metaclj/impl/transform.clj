@@ -1,4 +1,4 @@
-(ns metaclj.impl.syntax ;XXX rename me to transform or compile or something.
+(ns metaclj.impl.transform
   (:require [metaclj.impl.env :as env]
             [metaclj.impl.parse :refer [parse head syntax?]]))
 
