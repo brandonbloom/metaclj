@@ -60,23 +60,9 @@
     (blahblah 1 2 3 4)
   ))
 
-  (fipp.clojure/pprint (macroexpand-1 '
-  (defmeta dotwice [expr]
-    (syntax (do expr expr)))
-  ))
-
-  (fipp.clojure/pprint (macroexpand-1 '
-    (dotwice (prn 1))
-  ))
-
-  (defmeta dotwice [expr]
-    (syntax (do expr expr)))
-
-  (dotwice (prn 1))
-
   (fipp.edn/pprint
-  (let [x 1] (syntax x))
-  )
+    (let [x 1] (syntax x))
+    )
 
   (let [x 1
         y [1 2 3]]

@@ -12,6 +12,10 @@
          (merge (->Env *ns*) '{x 2})))
   )
 
+(defbn dotwice [expr]
+  expr
+  expr)
+
 (defbn my-if [test then else]
   (if test then else))
 
@@ -26,6 +30,8 @@
      (if y (my-and next) y))))
 
 (deftest by-name-test
+
+  (is (= "11" (with-out-str (dotwice (pr 1)))))
 
   (is (= 1 (my-if true 1 2)))
   (is (= "1" (with-out-str (my-if true (pr 1) (pr 2)))))
@@ -44,3 +50,7 @@
   (is (= nil (my-and 1 2 nil 4)))
 
   )
+
+;;XXX some stuff is being transformed multiple times, as evidenced by
+;; multiple dollar signs in symbols. Generated symbols are being passed
+;; to gensym. Figure out why and prevent this from happening.
