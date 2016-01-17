@@ -34,8 +34,8 @@ one arm of the conditional.
 
 ## Status
 
-- The comments at the bottom of [core.clj](./src/metaclj/core.clj) are my
-  testbed.
+- The comments at the bottom of [core.clj](./src/metaclj/core.clj) and
+  the code in [core_test.clj](./test/metaclj/core_test.clj) form my testbed.
 - Many known bugs and incomplete behavior.
 - Far from all Clojure forms are supported so far.
 - While unquoting is less common, it's still useful, but not yet implemented.

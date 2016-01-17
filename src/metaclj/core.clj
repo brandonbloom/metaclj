@@ -86,34 +86,4 @@
         y [1 2 3]]
     (syntax x y))
 
-  (defbn my-if [test then else]
-    (if test then else))
-
-  (my-if true 1 2)
-  (my-if true (prn 1) (prn 2))
-  (my-if false 1 2)
-  (my-if false (prn 1) (prn 2))
-
-  (defbn vector-bn [& args]
-    (fipp.edn/pprint [:args= args])
-    [args])
-
-  (vector-bn 1 2 3)
-
-
-  (defbn my-and
-    ([] true)
-    ([x] x)
-    ([x & next]
-     (let [y x]
-       (if y (my-and next) y))))
-
-  (my-and)
-  (my-and 1)
-  (my-and 1 2)
-  (my-and 1 2 3)
-  (my-and 1 2 3 4)
-  (my-and 1 false 3 4)
-  (my-and 1 2 nil 4)
-
 )
