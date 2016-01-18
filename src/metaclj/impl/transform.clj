@@ -187,9 +187,17 @@
              cases)
      [(do-in env default)])])
 
-;TODO :interop
-;TODO :assign-var
-;TODO :assign-field
-;TODO :import
+(defmethod transform :assign-var
+  [{:keys [name expr env]}]
+  [(list 'set! name (do-in env expr))])
+
+(defmethod transform :assign-field
+  [{:keys [object field expr env]}]
+  [(list 'set! (list '. (do-in env object) field) (do-in env expr))])
+
+(defmethod transform :interop
+  [{:keys [target member args env]}]
+  [(list* '. (do-in env target) member (mapcat #(transform-in env %) args))])
+
 ;TODO :reify
 ;TODO :deftype

@@ -105,6 +105,15 @@
   (let [x 5 y 2]
     (party (loop [x x, y y] (if (pos? x) (recur (dec x) (inc y)) y))))
 
-  (party (case 1 2 3 4))
+  (party (case 1 2 3 4)) ;XXX broken by transform loop
+
+  (def ^:dynamic *x* 1)
+  (let [y 3] (party (binding [*x* 2] (set! *x* y))))
+
+  (let [obj :bogus, x 1] (party (set! (.x obj) x)))
+
+  (defprotocol Frobable (frob [this x]))
+  (deftype Foo [] Frobable (frob [this x] x))
+  (let [x 1] (party (.frob (Foo.) x)))
 
 )
