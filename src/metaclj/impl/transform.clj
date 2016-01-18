@@ -2,6 +2,9 @@
   (:require [metaclj.impl.env :as env]
             [metaclj.impl.parse :refer [parse head syntax?]]))
 
+(defn rename [sym]
+  (gensym (str sym "$")))
+
 (defn meta-macro? [{:keys [origin value]}]
   (and (= origin :namespace) (-> value meta :meta-macro)))
 
@@ -69,12 +72,12 @@
     [(concat (transform-in env f) (mapcat #(transform-in env %) args))]))
 
 (defmethod transform :var [{:keys [sym]}]
-  [sym])
+  [(list 'var sym)])
 
 (defmethod transform :let
   [{:keys [bindings expr env]}]
   (let [[env bindings] (reduce (fn [[env bindings] {:keys [name init]}]
-                                 (let [sym (gensym (str name "$"))
+                                 (let [sym (rename name)
                                        inits (transform-in env init)]
                                    [(assoc env name sym)
                                     (conj bindings sym (list* 'do inits))]))
@@ -85,3 +88,52 @@
 (defmethod transform :if
   [{:keys [test then else env]}]
   [(list* 'if (mapcat #(transform-in env %) [test then else]))])
+
+(defmethod transform :meta
+  [{:keys [form meta env]}]
+  ;XXX use meta
+  (transform-in env (with-meta form nil)))
+
+(defn transform-method [{:keys [fixed variadic expr]} env]
+  (let [gfixed (map rename fixed)
+        gvariadic (when variadic (rename variadic))
+        params (concat fixed (when variadic [variadic]))
+        gparams (concat gfixed (when gvariadic [gvariadic]))
+        sig (vec (concat gfixed (when gvariadic ['& gvariadic])))
+        env (into env (map vector params gparams))]
+    (list* sig (transform-in env expr))))
+
+(defmethod transform :fn
+  [{:keys [name methods env]}]
+  (let [code ['fn*]
+        gname (when name (rename name))
+        [code env] (if name
+                     [(conj code name) (assoc env name gname)]
+                     [code env])]
+    [(concat code (map #(transform-method % env) methods))]))
+
+(defmethod transform :letfn
+  [{:keys [bindings expr env]}]
+  (let [env (into env (for [[name _] bindings]
+                        [name (rename name)]))
+        fns (mapv (fn [[name f]]
+                    (list* `fn (get env name)
+                           (map #(transform-method % env)
+                                (:methods f))))
+                  bindings)
+        bindings (mapcat (fn [[name _] f] [name f]) bindings fns)]
+    [(list* 'letfn* (vec bindings) (transform-in env expr))]))
+
+;TODO :throw
+;TODO :try
+;TODO :new
+;TODO :interop
+;TODO :declare
+;TODO :assign-var
+;TODO :assign-field
+;TODO :loop
+;TODO :recur
+;TODO :case
+;TODO :import
+;TODO :reify
+;TODO :deftype

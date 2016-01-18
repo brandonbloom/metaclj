@@ -49,6 +49,9 @@
 
   (require 'fipp.edn)
   (require 'fipp.clojure)
+  (defmacro party [form]
+    `(doseq [x# (transform-in (local-env) '~form)]
+       (fipp.clojure/pprint x#)))
 
   (fipp.clojure/pprint (macroexpand-1 '
   (defmeta blahblah
@@ -71,5 +74,14 @@
   (let [x 1
         y [1 2 3]]
     (syntax x y))
+
+  (party inc)
+  (party #'inc)
+  (let [x 1] (party (fn f [y] (+ x y))))
+  (let [x 1] (party (fn [y] (+ x y))))
+  (let [x 1]
+    (party (letfn [(f [] (g x))
+                   (g [] (inc x))]
+             (g 5))))
 
 )

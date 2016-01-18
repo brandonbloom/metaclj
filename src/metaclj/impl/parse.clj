@@ -4,8 +4,6 @@
 ;TODO: validation conditions.
 ; ie raise error for (var inc inc), (quote x x), odd number bindings, etc
 
-(defrecord Fn []) ;XXX delete me
-
 (defprotocol Form
   (-parse [expr env]))
 
@@ -27,7 +25,7 @@
 
 (defn parse-meta [form env]
   (when-let [metadata (meta form)]
-    {:head :meta :form form  :env env
+    {:head :meta :form form :env env
      :expr (with-meta form nil) :meta metadata}))
 
 (defn parse-constant [x env]
@@ -138,33 +136,25 @@
 
 (defn parse-method [params body]
   ;;TODO: validate signature.
-  (let [[fixed [_ varargs]] (split-with (complement '#{&}) params)]
-    [(if varargs :more (count fixed))
-     {:fixed-arity (count fixed)
-      :variadic? (boolean varargs)
-      :params params
-      :expr (implicit-do body)}]))
+  (let [[fixed [_ variadic]] (split-with (complement '#{&}) params)]
+    {:fixed (vec fixed)
+     :variadic variadic
+     :expr (implicit-do body)}))
 
 (defn parse-fn [[_ & fn-tail] env]
   ;;TODO: validate methods.
   (let [[name impl] (if (symbol? (first fn-tail))
                       [(first fn-tail) (next fn-tail)]
                       [nil fn-tail])
-        methods (for [[sig & body] (if (vector? (first impl))
-                                     (list impl)
-                                     impl)]
-                  (parse-method sig body))
-        arities (into {} methods)]
-    (map->Fn {:name name :env env
-              :arities arities
-              :max-fixed-arity (apply max (for [[_ m] arities]
-                                            (:fixed-arity m)))})))
+        methods (for [[sig & body] (if (vector? (first impl)) [impl] impl)]
+                  (parse-method sig body))]
+    {:name name :env env :methods methods}))
 
 (defmethod parse-seq 'fn*
   [form env]
   (or (parse-meta form env)
-      {:head :fn :form form :env env
-       :value (parse-fn form env)}))
+      (merge {:head :fn :form form :env env}
+             (parse-fn form env))))
 
 (defmethod parse-seq 'letfn*
   [[_ bindings & body :as form] env]
