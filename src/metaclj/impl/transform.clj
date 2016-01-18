@@ -160,8 +160,15 @@
     (when finally
       [(list* 'finally (transform-in env finally))]))])
 
+(defmethod transform :declare
+  [{:keys [sym]}]
+  [(list 'def sym)])
+
+(defmethod transform :define
+  [{:keys [sym expr env]}]
+  [(list 'def sym (do-in env expr))])
+
 ;TODO :interop
-;TODO :declare
 ;TODO :assign-var
 ;TODO :assign-field
 ;TODO :loop

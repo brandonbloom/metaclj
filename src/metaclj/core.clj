@@ -99,4 +99,7 @@
   (let [a 1, b ArithmeticException, c 2, d 3, e 4]
     (party (try a (catch b ex [ex c]) (catch :default ex d) (finally e))))
 
+  (party (declare x y z))
+  (let [x (syntax 1 2)] (party (def y x)))
+
 )
