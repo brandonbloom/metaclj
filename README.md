@@ -43,7 +43,7 @@ one arm of the conditional.
 
 ### Staged Compilation
 
-The `meta/do` macro will perform meta-quoting to zero or more forms, then
+The `meta/do` macro will perform meta-quoting on zero or more forms, then
 evaluate each of them:
 
 ```clojure
