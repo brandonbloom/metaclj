@@ -102,4 +102,7 @@
   (party (declare x y z))
   (let [x (syntax 1 2)] (party (def y x)))
 
+  (let [x 5 y 2]
+    (party (loop [x x, y y] (if (pos? x) (recur (dec x) (inc y)) y))))
+
 )

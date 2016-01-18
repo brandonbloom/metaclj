@@ -254,8 +254,13 @@
 
 (defmethod parse-seq 'loop*
   [[_ bindings & body :as form] env]
-  {:head :loop :form form :env env
-   :bindings bindings :expr (implicit-do body)})
+  (let [bindings (->> bindings
+                      (partition 2)
+                      (mapv (fn [[name init]]
+                              {:name name
+                               :init init})))]
+    {:head :loop :form form :env env
+     :bindings bindings :expr (implicit-do body)}))
 
 (defmethod parse-seq 'recur
   [[_ & args :as form] env]

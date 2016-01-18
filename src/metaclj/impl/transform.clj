@@ -168,10 +168,19 @@
   [{:keys [sym expr env]}]
   [(list 'def sym (do-in env expr))])
 
+(defmethod transform :loop
+  [{:keys [bindings expr env]}]
+  (let [[bindings env] (reduce (fn [[bindings env] {:keys [name init]}]
+                                 (let [rn (rename name)]
+                                   [(conj bindings rn (do-in env init))
+                                    (assoc env name rn)]))
+                               [[] env]
+                               bindings)]
+    [(list* 'loop* bindings (transform-in env expr))]))
+
 ;TODO :interop
 ;TODO :assign-var
 ;TODO :assign-field
-;TODO :loop
 ;TODO :case
 ;TODO :import
 ;TODO :reify
