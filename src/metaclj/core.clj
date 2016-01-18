@@ -1,5 +1,5 @@
 (ns metaclj.core
-  (:refer-clojure :exclude [eval])
+  (:refer-clojure :exclude [eval compile])
   (:require [metaclj.impl.env :refer [->Env]]
             [metaclj.impl.parse :refer [parse ->Syntax syntax?]]
             [metaclj.impl.transform :refer [transform-in]]))
@@ -15,6 +15,12 @@
 
 (defmacro syntax [& forms]
   `(->Syntax '~(vec forms) (local-env)))
+
+(defmacro translate [& forms]
+  `(transform-in (->Env *ns*) (syntax ~@forms)))
+
+(defmacro do [& body]
+  `(eval (syntax ~@body)))
 
 (defmacro defmeta [name & fn-tail]
   (let [make-binding (fn [param variadic?]
@@ -115,5 +121,12 @@
   (defprotocol Frobable (frob [this x]))
   (deftype Foo [] Frobable (frob [this x] x))
   (let [x 1] (party (.frob (Foo.) x)))
+
+  (let [x 2 y 4]
+    ((compile (fn [] ~(+ x y)))))
+
+  (let [x 2 y 4]
+    (translate (fn [] ~(+ x y))))
+
 
 )

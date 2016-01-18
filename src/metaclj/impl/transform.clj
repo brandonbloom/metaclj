@@ -199,5 +199,9 @@
   [{:keys [target member args env]}]
   [(list* '. (do-in env target) member (mapcat #(transform-in env %) args))])
 
+(defmethod transform :unquote
+  [{:keys [expr env]}]
+  (map clojure.core/eval (transform-in env expr)))
+
 ;TODO :reify
 ;TODO :deftype

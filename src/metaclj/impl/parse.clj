@@ -285,3 +285,7 @@
   [[_ tagname classname fields _ implements & methods :as form] env]
   {:head :deftype :form form :env env :tagname tagname :classname classname
    :fields fields :implements implements :methods methods})
+
+(defmethod parse-seq 'clojure.core/unquote
+  [[_ expr :as form] env]
+  {:head :unquote :form form :env env :expr expr})
