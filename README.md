@@ -77,7 +77,7 @@ expression will still be evaluated at compile time:
 ;=> #<Fn@32b2ad39 user/eval15784$fn__15788>
 ```
 
-You can provide this to yourself by using `meta/translate`, which is a cousin
+You can prove this to yourself by using `meta/translate`, which is a cousin
 of `macroexpand-all`:
 
 ```clojure
