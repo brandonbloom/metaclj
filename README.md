@@ -8,7 +8,7 @@ syntax quoting that is aware of both local environments and special-forms.
 Among other things, this makes many macros easier to write. Perhaps more
 importantly, it simplifies control over when code gets evaluated or compiled.
 
-### Usage
+## Usage
 
 ```clojure
 (require '[metaclj.core :refer [defmeta syntax] :as meta])
@@ -90,9 +90,9 @@ Note that the returned value is wrapped in a seq, since Meta-Clojure uniformly
 supports multiple expressions with implicit splicing:
 
 ```clojure
-(let [x 2]
-  (meta/translate 1 x 3))
-;=> (1 2 3)
+(let [x (syntax 2 3)]
+  (meta/translate 1 x 4))
+;=> (1 2 3 4)
 ```
 
 
@@ -102,12 +102,10 @@ supports multiple expressions with implicit splicing:
   the code in [core_test.clj](./test/metaclj/core_test.clj) form my testbed.
 - Many known bugs and incomplete behavior.
 - Some special forms not yet supported: `case`, `deftype`, and `reify`.
-- Many of the cooler things you can do with this are neither possible nor
-  obvious from this prototype.
-- Lots of the code left to be cannibalized from [EClj][4].
-- No progress yet on [Exotypes][4]
+- No progress yet on [Exotypes][5]
 - Use of `clojure.core/eval` is unavoidable at the top level, but it could
   be compiled away for more interior forms.
+- Maybe someday I'll revive [EClj][4] and build its compiler on Meta-Clojure.
 
 
 ## References
