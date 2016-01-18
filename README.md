@@ -37,7 +37,7 @@ one arm of the conditional.
 - The comments at the bottom of [core.clj](./src/metaclj/core.clj) and
   the code in [core_test.clj](./test/metaclj/core_test.clj) form my testbed.
 - Many known bugs and incomplete behavior.
-- Far from all Clojure forms are supported so far.
+- Some special forms not yet supported: `case`, `deftype`, and `reify`.
 - While unquoting is less common, it's still useful, but not yet implemented.
 - Many of the cooler things you can do with this are neither possible nor
   obvious from this prototype.
