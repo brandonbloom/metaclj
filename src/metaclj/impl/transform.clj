@@ -178,10 +178,18 @@
                                bindings)]
     [(list* 'loop* bindings (transform-in env expr))]))
 
+(defmethod transform :case
+  [{:keys [expr cases default env]}]
+  [(concat [`case]
+     [(do-in env expr)]
+     (mapcat (fn [[val expr]]
+               [val (do-in env expr)])
+             cases)
+     [(do-in env default)])])
+
 ;TODO :interop
 ;TODO :assign-var
 ;TODO :assign-field
-;TODO :case
 ;TODO :import
 ;TODO :reify
 ;TODO :deftype

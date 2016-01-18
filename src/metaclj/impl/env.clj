@@ -1,4 +1,5 @@
 (ns metaclj.impl.env
+  (:require [metaclj.impl.patch :as patch])
   (:import [clojure.lang Reflector]))
 
 
@@ -17,20 +18,13 @@
   (fn [& args]
     (apply static-invoke class member args)))
 
-;;XXX find and fix occurrences of "eclj".
-(def patches {#'clojure.core/case 'eclj.core/case
-              #'clojure.core/ns 'eclj.core/ns
-              #'clojure.core/deftype 'eclj.core/deftype
-              #'clojure.core/defrecord 'eclj.core/defrecord
-              #'clojure.core/defprotocol 'eclj.core/defprotocol})
-
 (defn lookup-var [ns sym]
   (try
     (if-let [x (ns-resolve ns sym)]
       (if (var? x)
-        (if-let [patch (patches x)]
+        (if-let [patch (patch/vars x)]
           (lookup-var ns patch)
-          {:origin :namespace :value (or (-> x meta :eclj/alias) x)})
+          {:origin :namespace :value x})
         {:origin :host :value x})
       {:origin :host :value (clojure.lang.RT/classForName (name sym))})
     (catch ClassNotFoundException e

@@ -105,4 +105,6 @@
   (let [x 5 y 2]
     (party (loop [x x, y y] (if (pos? x) (recur (dec x) (inc y)) y))))
 
+  (party (case 1 2 3 4))
+
 )

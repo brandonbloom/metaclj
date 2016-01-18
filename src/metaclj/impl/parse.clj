@@ -270,7 +270,7 @@
   [[_ sym :as form] env]
   {:head :import :form form :env env :sym sym})
 
-(defmethod parse-seq 'eclj.core/case*
+(defmethod parse-seq 'metaclj.impl.patch/case*
   [[_ expr cases default :as form] env]
   {:head :case :form form :env env
    :expr expr :cases cases :default default})
