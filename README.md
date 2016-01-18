@@ -11,7 +11,7 @@ importantly, it simplifies control over when code gets evaluated or compiled.
 ## Usage
 
 ```clojure
-(require '[metaclj.core :refer [defmeta syntax] :as meta])
+(require '[metaclj.core :refer [defmeta defbn syntax] :as meta])
 ```
 
 ### Meta-Macros
