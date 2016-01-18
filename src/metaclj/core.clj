@@ -83,5 +83,20 @@
     (party (letfn [(f [] (g x))
                    (g [] (inc x))]
              (g 5))))
+  (let [x (Exception. "OH NOEZ")] (party (throw x)))
+
+  (deftype Box [x])
+  (let [typ Box, x 1] (party (new typ x)))
+
+  (deftype Pair [x y])
+  (let [xy (syntax 1 2)] (party (new Pair xy)))
+
+  (let [x (syntax 1 2)] (party (recur x)))
+
+  (let [typ "java.util.regex.Pattern"] (party (clojure.core/import* typ)))
+
+  (party (try))
+  (let [a 1, b ArithmeticException, c 2, d 3, e 4]
+    (party (try a (catch b ex [ex c]) (catch :default ex d) (finally e))))
 
 )

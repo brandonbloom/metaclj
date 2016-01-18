@@ -16,6 +16,13 @@
 (defn transform-in [env x]
   (transform (parse x env)))
 
+(defn do-in [env x]
+  (let [xs (transform-in env x)]
+    (case (count xs)
+      0 nil
+      1 (first xs)
+      (list* 'do xs))))
+
 (defmethod transform :syntax [{:keys [forms env]}]
   (mapcat #(transform-in env %) forms))
 
@@ -77,10 +84,9 @@
 (defmethod transform :let
   [{:keys [bindings expr env]}]
   (let [[env bindings] (reduce (fn [[env bindings] {:keys [name init]}]
-                                 (let [sym (rename name)
-                                       inits (transform-in env init)]
+                                 (let [sym (rename name)]
                                    [(assoc env name sym)
-                                    (conj bindings sym (list* 'do inits))]))
+                                    (conj bindings sym (do-in env init))]))
                                [env []]
                                bindings)]
     [(list* 'let* bindings (transform-in env expr))]))
@@ -124,15 +130,41 @@
         bindings (mapcat (fn [[name _] f] [name f]) bindings fns)]
     [(list* 'letfn* (vec bindings) (transform-in env expr))]))
 
-;TODO :throw
-;TODO :try
-;TODO :new
+(defmethod transform :throw
+  [{:keys [expr env]}]
+  [(list 'throw (do-in env expr))])
+
+(defmethod transform :new
+  [{:keys [class args env]}]
+  [(list* 'new (do-in env class) (mapcat #(transform-in env %) args))])
+
+(defmethod transform :recur
+  [{:keys [args env]}]
+  [(list* 'recur (mapcat #(transform-in env %) args))])
+
+(defmethod transform :import
+  [{:keys [sym env]}]
+  [(list* 'clojure.core/import* (transform-in env sym))])
+
+(defmethod transform :try
+  [{:keys [try catches default finally env]}]
+  [(concat ['try] (transform-in env try)
+    (for [{:keys [type name expr]} catches
+          :let [rn (rename name)]]
+      (list* 'catch (do-in env type) rn
+             (transform-in (assoc env name rn) expr)))
+    (when-let [{:keys [name expr]} default]
+      (let [rn (rename name)]
+        [(list* 'catch `Exception rn
+                (transform-in (assoc env name rn) expr))]))
+    (when finally
+      [(list* 'finally (transform-in env finally))]))])
+
 ;TODO :interop
 ;TODO :declare
 ;TODO :assign-var
 ;TODO :assign-field
 ;TODO :loop
-;TODO :recur
 ;TODO :case
 ;TODO :import
 ;TODO :reify
