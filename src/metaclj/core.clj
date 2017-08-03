@@ -6,7 +6,9 @@
 
 (defn eval [x]
   ;(fipp.clojure/pprint (transform-in (->Env *ns*) x))
-  (run! clojure.core/eval (transform-in (->Env *ns*) x)))
+  (reduce (fn [_ x] (clojure.core/eval x))
+          nil
+          (transform-in (->Env *ns*) x)))
 
 (defmacro local-env []
   `(into (->Env ~*ns*)
