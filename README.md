@@ -62,7 +62,7 @@ compile time:
 
 Unquoting is syntax aware and provides automatic splicing:
 
-```
+```clojure
 (let [args (syntax 2 4)]
   (meta/do ~(+ args)))
 ;;=> 6
